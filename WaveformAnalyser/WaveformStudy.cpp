@@ -39,10 +39,9 @@
 #include "TrackCaloSkimmerObj.h"
 
 using namespace std;
-
-//SET DETECTOR GEOMETRY AND PARAMETERS (?) ADAPT FOR SBND???
-const float minDistOffset = 13.0; //cm
-const float maxDistOffset = 16.0; //cm
+//SET DETECTOR GEOMETRY AND PARAMETERS
+const float minDistOffset = 2.0; //cm	old: 13.0
+const float maxDistOffset = 5.0; //cm	old: 16.0
 const int timePadding = 200; //ns
 const vector<float> threshold = {6.0, 6.0, 6.0};
 const int max_offset = 5;
@@ -352,11 +351,15 @@ int main(int argc, char** argv)
 			float maxW_low = -999999;
 			float minW_high = 999999;
 			float maxW_high = -999999;
+			float minW_east = 999999;
+			float maxW_east = -999999;
+			float minW_west = 999999;
+            float maxW_west = -999999;
 			float minT_fortimerange = 999999;
 			float maxT_fortimerange = -999999;
 			for(int k = 0; k < trackHitWires.size(); k++)
 			{
-				if((trackHitIsOnTraj[k] == true) && (((whichTPC == 0) && (trackHitTPCs[k] < 2)) || ((whichTPC == 1) && (trackHitTPCs[k] >= 2))))
+				if((trackHitIsOnTraj[k] == true) && (((whichTPC == 0) && (trackHitTPCs[k] == 0)) || ((whichTPC == 1) && (trackHitTPCs[k] == 1))))
 				{	
 					if((fabs(WF_cathode-fabs(trackHitXvals[k])) > WF_ACdist-maxDistOffset) && (fabs(WF_cathode-fabs(trackHitXvals[k])) < WF_ACdist-minDistOffset) && (fabs(fabs(WF_cathode-fabs(trackHitXvals[k])) - (WF_ACdist-(minDistOffset+maxDistOffset)/2.0)) < fabs(fabs(WF_cathode-fabs(minT_Xval)) - (WF_ACdist-(minDistOffset+maxDistOffset)/2.0))))
 					{
@@ -375,7 +378,8 @@ int main(int argc, char** argv)
 						maxT_Zval = trackHitZvals[k];
 					}
 
-					if(((whichTPC == 0) && (trackHitTPCs[k] == 0)) || ((whichTPC == 1) && (trackHitTPCs[k] == 2)))
+					//Looks for the minimum wire number that a signal is deposited on
+					/*if(((whichTPC == 0) && (trackHitTPCs[k] == 0)) || ((whichTPC == 1) && (trackHitTPCs[k] == 2)))
 					{
 						if(trackHitWires[k] < minW_low) minW_low = trackHitWires[k];
 						if(trackHitWires[k] > maxW_low) maxW_low = trackHitWires[k];
@@ -384,7 +388,18 @@ int main(int argc, char** argv)
 					{
 						if(trackHitWires[k] < minW_high) minW_high = trackHitWires[k];
 						if(trackHitWires[k] > maxW_high) maxW_high = trackHitWires[k];
-					}
+					}*/
+
+					if(whichTPC == 0 && trackHitTPCs[k] == 0)
+                    {
+                        if(trackHitWires[k] < minW_east) minW_east = trackHitWires[k];
+                        if(trackHitWires[k] > maxW_east) maxW_east = trackHitWires[k];
+                    }
+					if(whichTPC == 1 && trackHitTPCs[k] == 1)
+                    {
+                        if(trackHitWires[k] < minW_west) minW_west = trackHitWires[k];
+                        if(trackHitWires[k] > maxW_west) maxW_west = trackHitWires[k];
+                    }
 
 					if(trackHitTimes[k] < minT_fortimerange)
 					{
@@ -416,7 +431,7 @@ int main(int argc, char** argv)
 			//if((thewireval < -100.0) || (thewireval > -20.0)) continue;
 
 			float wire_range;
-			if((fabs(maxW_low-minW_low) > 10000) && (fabs(maxW_high-minW_high) > 10000))
+			/*if((fabs(maxW_low-minW_low) > 10000) && (fabs(maxW_high-minW_high) > 10000))
 			{
 				continue;
 			}
@@ -431,7 +446,23 @@ int main(int argc, char** argv)
 			else
 			{
 				wire_range = fabs(maxW_low-minW_low) + fabs(maxW_high-minW_high);
-			}
+			}*/
+			if((fabs(maxW_east-minW_east) > 10000) && (fabs(maxW_west-minW_west) > 10000))
+            {
+                continue;
+            }
+            else if(fabs(maxW_east-minW_east) > 10000)
+            {
+                wire_range = fabs(maxW_west-minW_west);
+            }
+            else if(fabs(maxW_west-minW_west) > 10000)
+            {
+                wire_range = fabs(maxW_east-minW_east);
+            }
+            else
+            {
+                wire_range = fabs(maxW_east-minW_east) + fabs(maxW_west-minW_west);
+            }
 
 			float wire_dir_ind1[3] = {0.0, 0.0, 1.0};
 			float wire_dir_ind2[3] = {0.0, sqrt(3.0)/2.0, 0.5};
@@ -497,7 +528,7 @@ int main(int argc, char** argv)
 			bool cathode_flag = false;
 			for(int k = 0; k < total_wires; k++)
 			{
-				if(((whichTPC == 0) && (trackWf[k].tpc < 2)) || ((whichTPC == 1) && (trackWf[k].tpc >= 2)))
+				if(((whichTPC == 0) && (trackWf[k].tpc == 0)) || ((whichTPC == 1) && (trackWf[k].tpc == 1)))
 				{
 					if(trackWf[k].wire == minT_wire)
 					{

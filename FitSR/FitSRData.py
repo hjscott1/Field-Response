@@ -24,7 +24,7 @@ Sub_filedir = SR_Input_File[SR_Input_File.index("WFresults"):SR_Input_File.index
 
 IPLANE = int(Sub_filedir[(Sub_filedir.index("Plane")+5):(Sub_filedir.index("Plane")+6)])
 TPC = Sub_filedir[(Sub_filedir.index(str(IPLANE))+2):(Sub_filedir.index(str(IPLANE))+3)]
-Run_Type = "mc"
+Run_Type = "data"
 print("Wire Plane Number = " + str(IPLANE))
 print("TPC Type = " + TPC)
 
@@ -58,7 +58,7 @@ FIT_PERIOD = 5
 PLT_PERIOD = 10
 
 # values of thxz
-thxzs = list(range(30, 82, 2)) # 20-80, inclusive
+thxzs = list(range(34, 82, 2)) # 20-80, inclusive
 
 # Plot various things
 PLTPATHS = True # electron paths

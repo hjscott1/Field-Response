@@ -54,7 +54,7 @@ void MakePlotsWaveform()
         baseline = (char*) "Left";
       }
       
-	  MakePlot(i,angles[k],angles[k+1],(char*)"XX",0,(char*)"./",(char*)"MC",(char*)"XX",0,(char*)"./",(char*)"Data",(char*)"MC_VS_Data");
+	  MakePlot(i,angles[k],angles[k+1],(char*)"X",0,(char*)"./Results/mc/Sample20241017",(char*)"mc",(char*)"X",0,(char*)"./Results/data/WireBiasNominal",(char*)"data",(char*)"mc_VS_data");
     }
   }
   
@@ -78,7 +78,7 @@ void MakePlot(int planenum, int angle_low, int angle_high, char* runtype1, int b
     bintext2 = Form("_bin%d",binnum2);
   }
 
-  TFile* inputfile_1 = new TFile(Form("./Results/MC/AviWorkflow/100000_Events/WFresults_Plane%d_%s_MC.root",planenum,runtype1),"READ");
+  TFile* inputfile_1 = new TFile(Form("%s/WFresults_Plane%d_%s_%s.root",filepath1,planenum,runtype1,label1),"READ");
 
   if(angle_high >= angle_low+2)
   {
@@ -96,7 +96,7 @@ void MakePlot(int planenum, int angle_low, int angle_high, char* runtype1, int b
     angle_1 += 2;
   }  
   
-  TFile* inputfile_2 = new TFile(Form("./Results/Data/run14608/WFresults_Plane%d_%s_data.root",planenum,runtype2),"READ");
+  TFile* inputfile_2 = new TFile(Form("%s/WFresults_Plane%d_%s_%s.root",filepath2,planenum,runtype2,label2),"READ");
   
   if(angle_high >= angle_low+2)
   {
@@ -197,10 +197,6 @@ void MakePlot(int planenum, int angle_low, int angle_high, char* runtype1, int b
     
   if((planenum == 0) || (planenum == 1))
   {
-    int nbins = ResultHist2->GetNbinsX();
-    int minbin_2 = ResultHist2->GetMinimumBin();
-    int minbin_1 = WaveformHist1->GetMinimumBin();
-
     float SF_2 = ResultHist2->GetBinContent(ResultHist2->GetMinimumBin());
     float SF_1 = WaveformHist1->GetBinContent(WaveformHist1->GetMinimumBin());
 
@@ -245,7 +241,7 @@ void MakePlot(int planenum, int angle_low, int angle_high, char* runtype1, int b
   WaveformHist1->GetXaxis()->SetTitleOffset(1.05);
   WaveformHist1->GetXaxis()->SetLabelSize(0.04);
   WaveformHist1->GetXaxis()->SetRangeUser(timeTickSF*(-1*max_ticks_plot-0.5),timeTickSF*(max_ticks_plot+0.5));
-  //WaveformHist1->GetXaxis()->SetRangeUser(-20, 20);
+  //WaveformHist1->GetXaxis()->SetRangeUser(-25, 25);
 
   if(planenum == 0)
   {
@@ -270,5 +266,6 @@ void MakePlot(int planenum, int angle_low, int angle_high, char* runtype1, int b
   leg->AddEntry(WaveformHist1,label1,"L");
   leg->Draw("SAME");
 
-  c1.SaveAs(Form("Waveform_Anode_%s_Plane%d_%s_%dto%d.png",savefiletext,planenum,runtype1,angle_low,angle_high));
+  c1.SaveAs(Form("%s/Waveform_Anode_%s_Plane%d_%s_TPC_%dto%d.png",filepath1,savefiletext,planenum,runtype1,angle_low,angle_high));
+  //c1.SaveAs(Form("%s/Waveform_Anode_%s_Plane%d_%s_TPC_%dto%d_narrow.png",filepath1,savefiletext,planenum,runtype1,angle_low,angle_high));
 }

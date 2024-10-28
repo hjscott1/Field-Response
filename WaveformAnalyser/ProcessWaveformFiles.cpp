@@ -246,13 +246,17 @@ int main(int argc, char** argv)
 
 	TFile* mapfile = new TFile(mapfilepath,"READ");
 
+	//TH2F* ScaleMapRaw[3][2];
+	//TH2F* ScaleMapBins[3][2];
 	TH2F* ScaleMapRaw[3][4];
-	TH2F* ScaleMapBins[3][4];
-
+    TH2F* ScaleMapBins[3][4];
+	
+	//vector<string> tpc_names = {"E", "W"};
 	vector<string> tpc_names = {"EE", "EW", "WE", "WW"};
 
 	for(int i = 0; i < 3; i++)
 	{
+		//for(int j = 0; j < 2; j++)
 		for(int j = 0; j < 4; j++)
 		{
 			ScaleMapRaw[i][j] = (TH2F*) mapfile->Get(Form("map_yz_dqdx_plane%d_%s",i,tpc_names[j].c_str()));
@@ -300,7 +304,7 @@ int main(int argc, char** argv)
 		}
 		current_entry++;
 
-		if(*plane != planenum) continue;
+		if(*plane != planenum || ((tpcNum != -1) && (*tpc != tpcNum))) continue;
 		
 		int phi_index = -1;
 		for(int i = 0; i < phi_bins.size(); i++)

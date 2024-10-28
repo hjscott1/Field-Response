@@ -54,7 +54,7 @@ void ComparePlotsWaveform()
 				baseline = (char*) "Left";
 			}
 
-			MakePlot(i,angles[k],angles[k+1],(char*)"E",0,(char*)"./",(char*)"E",(char*)"W",0,(char*)"./",(char*)"W",(char*)"E_VS_W");
+			MakePlot(i,angles[k],angles[k+1],(char*)"X",0,(char*)"./Results/data/YWireBias1",(char*)"YWireBias1",(char*)"X",0,(char*)"./Results/data/WireBiasNominal",(char*)"WireBiasNominal",(char*)"YWireBias");
 		}
 	}
 
@@ -78,7 +78,7 @@ void MakePlot(int planenum, int angle_low, int angle_high, char* runtype1, int b
 		bintext2 = Form("_bin%d",binnum2);
 	}
 
-	TFile* inputfile_1 = new TFile(Form("./Results/data/WireBias2/WFresults_Plane%d_%s_data.root",planenum,runtype1), "READ");
+	TFile* inputfile_1 = new TFile(Form("%s/WFresults_Plane%d_%s_data.root",filepath1,planenum,runtype1), "READ");
 	if(angle_high >= angle_low+2)
 	{
 		WaveformHist1 = (TH1F*) inputfile_1->Get(Form("AnodeRecoHist1D_%dto%d%s",angle_low,angle_low+2,bintext1.c_str()));
@@ -95,7 +95,7 @@ void MakePlot(int planenum, int angle_low, int angle_high, char* runtype1, int b
 		angle_1 += 2;
 	}  
 	
-	TFile* inputfile_2 = new TFile(Form("./Results/data/WireBias2/WFresults_Plane%d_%s_data.root",planenum,runtype2), "READ");
+	TFile* inputfile_2 = new TFile(Form("%s/WFresults_Plane%d_%s_data.root",filepath2,planenum,runtype2), "READ");
 	if(angle_high >= angle_low+2)
 	{
 		WaveformHist2 = (TH1F*) inputfile_2->Get(Form("AnodeRecoHist1D_%dto%d%s",angle_low,angle_low+2,bintext2.c_str()));
@@ -110,6 +110,18 @@ void MakePlot(int planenum, int angle_low, int angle_high, char* runtype1, int b
 	{
 		WaveformHist2->Add((TH1F*) inputfile_2->Get(Form("AnodeRecoHist1D_%dto%d%s",angle_2,angle_2+2,bintext2.c_str())));
 		angle_2 += 2;
+	}
+
+  	if((planenum == 0) || (planenum == 1))
+  	{
+		float SF_1 = WaveformHist1->GetBinContent(WaveformHist1->GetMinimumBin());
+		float SF_2 = WaveformHist2->GetBinContent(WaveformHist2->GetMinimumBin());
+
+		WaveformHist2->Scale(SF_1/SF_2);
+ 	}
+	else if(planenum == 2)
+	{
+		WaveformHist2->Scale(WaveformHist1->Integral()/WaveformHist2->Integral());
 	}
 
 	WaveformHist1->SetLineWidth(3.0);
@@ -143,13 +155,13 @@ void MakePlot(int planenum, int angle_low, int angle_high, char* runtype1, int b
 	c1.cd();
 	WaveformHist1->Draw("HIST");
 	WaveformHist2->Draw("HISTsame");
-	WaveformHist1->SetTitle(Form("Plane %d, MC East vs West TPC: Average Waveform @ Anode",planenum));
-	//WaveformHist1->SetTitle(Form("Plane %d, %s TPC: Average Waveform @ Anode",planenum,runtype1));
+	WaveformHist1->SetTitle(Form("Y-Plane Wire Bias Study. Plane %d: Average Waveform @ Anode",planenum));
 	WaveformHist1->GetXaxis()->SetTitle("Time Offset [#mus]");
 	WaveformHist1->GetXaxis()->SetTitleSize(0.045);
 	WaveformHist1->GetXaxis()->SetTitleOffset(1.05);
 	WaveformHist1->GetXaxis()->SetLabelSize(0.04);
-	WaveformHist1->GetXaxis()->SetRangeUser(timeTickSF*(-1*max_ticks_plot-0.5),timeTickSF*(max_ticks_plot+0.5));
+	//WaveformHist1->GetXaxis()->SetRangeUser(timeTickSF*(-1*max_ticks_plot-0.5),timeTickSF*(max_ticks_plot+0.5));
+	WaveformHist1->GetXaxis()->SetRangeUser(-25, 25);
 	if(planenum == 0)
 	{
 		WaveformHist1->GetYaxis()->SetRangeUser(1.15*min(WaveformHist1->GetMinimum(),WaveformHist2->GetMinimum()),max(-0.5*min(WaveformHist1->GetMinimum(),WaveformHist2->GetMinimum()),1.2*max(WaveformHist1->GetMaximum(),WaveformHist2->GetMaximum())));
@@ -169,10 +181,10 @@ void MakePlot(int planenum, int angle_low, int angle_high, char* runtype1, int b
 	TLegend *leg = new TLegend(0.60,0.72,0.85,0.85);
 	leg->SetLineColor(kWhite);
 	leg->SetTextSize(0.043);
-	leg->AddEntry(WaveformHist1, "East TPC","L");
-	leg->AddEntry(WaveformHist2, "West TPC","L");
+	leg->AddEntry(WaveformHist1, "Y Plane: 460.46 V","L");
+	leg->AddEntry(WaveformHist2, "Y Plane: 420.42 V","L");
 	leg->Draw("SAME");
 
-	//c1.SaveAs(Form("CombPlotWaveform_Anode_%s_Plane%d_%s_%dto%d.png",savefiletext,planenum,runtype1,angle_low,angle_high));
-	c1.SaveAs(Form("Anode_%s_Plane%d_%dto%d_data.png",savefiletext,planenum,angle_low,angle_high));
+	//c1.SaveAs(Form("%s/Anode_%s_Plane%d_%dto%d_data.png",filepath2,savefiletext,planenum,angle_low,angle_high));
+	c1.SaveAs(Form("%s/Anode_%s_Plane%d_%dto%d_data_narrow.png",filepath2,savefiletext,planenum,angle_low,angle_high));
 }
