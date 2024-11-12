@@ -74,10 +74,8 @@ int main(int argc, char** argv)
 	char *filepath;
 	char *runtype;
 	int planenum;
-	int mapbins;
-	int baselineMode; // 0 = use both sides, 1 = use left side only, 2 = use right side only
 
-	if(argc < 6)
+	if(argc < 4)
 	{
 		cout << endl << "Not enough input parameters provided.  Aborting." << endl << endl;
 		return -1;
@@ -87,19 +85,27 @@ int main(int argc, char** argv)
 		filepath = (char*) argv[1];
 		runtype = (char*) argv[2];
 		planenum = atoi(argv[3]);
-		mapbins = atoi(argv[4]);
-		baselineMode = atoi(argv[5]);
 	}
 
+	int mapbins = 1;
 	if((mapbins != 1) && (mapbins != 5) && (mapbins != 10) && (mapbins != 15))
 	{
 		cout << endl << "Unsupported number of bins for input map file.  Aborting." << endl << endl;
 		return -2;
 	}
 
+	int baselineMode; // 0 = use both sides, 1 = use left side only, 2 = use right side only
+	if (planenum == 0)
+	{
+		baselineMode = 2;
+	}
+	else if (planenum == 1 || planenum == 2)
+	{
+		baselineMode = 1;
+	}
+
 	vector<pair<float, float>> phi_bins((int) (angle_max-angle_min)/angle_step);
 	generate(phi_bins.begin(), phi_bins.end(), [] { static float x = angle_min-angle_step; float y = x+2*angle_step; return make_pair(x+=angle_step, y);} );
-
 
 	std::string subfilepath(filepath);
 	std::string runformat;
@@ -400,7 +406,7 @@ int main(int argc, char** argv)
 	for(int i = 0; i < phi_bins.size(); i++)
 	{
 		for(int j = 0; j < mapbins; j++)
-		{
+		{	
 			total_tracks_A += all_anode_WFvals[i][j][5][0].size();
 			total_tracks_C += all_cathode_WFvals[i][j][5][0].size();
 		}

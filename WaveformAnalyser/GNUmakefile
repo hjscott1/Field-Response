@@ -1,7 +1,7 @@
 CXXFLAGS += -I. $(shell root-config --cflags) -g
 LDFLAGS += $(shell root-config --libs) -lPhysics -g
 
-PROGRAMS = WaveformStudy SkimWaveformFiles ProcessWaveformFiles
+PROGRAMS = WaveformStudy ProcessWaveformFiles
 
 all:	clean $(PROGRAMS)
 

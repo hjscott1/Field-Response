@@ -86,14 +86,13 @@ int main(int argc, char** argv)
 
 	//INPUT PARAMETERS
 	char *filepath;
-	int firstfilenum;
-	int lastfilenum;
+	int filenums;
 	char *filetext;
 	char *runformat;
 	char *outputfilename;
 
 	//ASSIGNS THE INPUT PARAMETERS VARIABLES
-	if(argc < 6)
+	if(argc < 5)
 	{
 		cout << endl << "Not enough input parameters provided.  Aborting." << endl << endl;
 		return -1;
@@ -101,14 +100,13 @@ int main(int argc, char** argv)
 	else
 	{
 		filepath = (char*) argv[1];
-		firstfilenum = atoi(argv[2]);
-		lastfilenum = atoi(argv[3]);
-		runformat = (char*) argv[4];
-		outputfilename = (char*) argv[5];
+		filenums = atoi(argv[2]);
+		runformat = (char*) argv[3];
+		outputfilename = (char*) argv[4];
 
-		if(argc == 7)
+		if(argc == 6)
 		{
-			filetext = (char*) argv[6];
+			filetext = (char*) argv[5];
 		}
 		else
 		{
@@ -127,16 +125,15 @@ int main(int argc, char** argv)
 	TChain* inputfiles = new TChain("caloskim/TrackCaloSkim");
 	if(useinputfilelist == false)
 	{
-		AddFiles(inputfiles,filepath,filetext,firstfilenum,lastfilenum);
+		AddFiles(inputfiles,filepath,filetext,1,filenums);
 	}
 	else
 	{
-		AddFilesList(inputfiles,filepath,filetext,firstfilenum,lastfilenum);
+		AddFilesList(inputfiles,filepath,filetext,1,filenums);
 	}
 
 	//OUTPUTS THE FILE
 	std::string outputdir = Form("Results/%s/%s/wfstudy_%s.root",runformat,outputfilename,runformat);
-	//std::filesystem::path outputfilepath = Form("Results/%s/%s/wfstudy_%s.root",runformat,outputfilename,runformat);
 
 	CheckIfDirectoryExists(outputdir);
 
